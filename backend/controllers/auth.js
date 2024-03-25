@@ -16,11 +16,10 @@ const login = async(req, res) => {
         const {email,password} = req.body
 
         if(!email || !password){
-            res.status(400)
-            return res.json({message: 'Please fill all the required fields'})
+            return res.json({message: 'Please fill all the required fields'}).status(400)
         }
-
-        const user = await prisma.user.findFirst({
+        
+        const user = await prisma.user.findUnique({
             where: {
                 email: email
             }
@@ -31,9 +30,10 @@ const login = async(req, res) => {
             return res.json({message: 'Invalid password'})
         }
 
+
         if(!compareSync(password,user.hashedPassword)){
-            res.status(403)
-            return res.json({message: 'Invalid password'})
+            
+            return res.json({message: 'Invalid password'}).status(403)
             // throw new Error('Invalid password')
         }
 
@@ -65,8 +65,7 @@ const signUp = async(req, res) => {
     })
     
     if(checkForDuplicateEmail){
-        res.status(500)
-        return res.json({message: 'Email already exists'})
+        return res.json({message: 'Email already exists'}).status(500)
     }
 
     const user = await prisma.user.create({

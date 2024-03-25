@@ -10,9 +10,13 @@ import Order from './pages/order.jsx'
 import Login from './pages/Login.jsx';
 import Signup from './pages/SignUp.jsx';
 import ErrorPage from './pages/Error.jsx';
-import Product from './pages/Product.js';
-import Products from './pages/Products.js';
+import Product from './pages/Product.jsx';
+import Products from './pages/Products.jsx';
+import Men from './pages/Men.jsx'
+import Women from './pages/Women.jsx'
+import Received from './pages/Received.jsx'
 import './index.css'
+
 
 const router = createBrowserRouter([
   {
@@ -41,13 +45,28 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
   },
   {
-    path: "product/:productId",
+    path: "product/:id",
     element: <Product />,
     errorElement: <ErrorPage />,
   },
   {
-    path: "product/",
+    path: "/received",
+    element: <Received />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/products",
     element: <Products />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/men",
+    element: <Men />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/women",
+    element: <Women />,
     errorElement: <ErrorPage />,
   },
 ]);

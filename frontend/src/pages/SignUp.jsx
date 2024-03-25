@@ -1,81 +1,144 @@
-import React from 'react';
-import { Formik, Field, Form, ErrorMessage } from 'formik';
- import { signupValidation } from '../components/signupValidation';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState } from 'react';
+import * as Yup from 'yup';
+import toast, { Toaster } from 'react-hot-toast';
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom';
 
+const SignUp = () => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
-export default function Signup() {
- const handleSubmit = (values) => {
-  axios.post('http://localhost:5300/api/auth/register',values )
-  .then(res => {
-    console.log(res);
-    // Navigate to the login page upon successful registration
-    navigation.navigate('/Login');
-  })
-  .catch(err => console.log(err));
-  console.log(values);
- 
-}
+  
+  useEffect( () => {
+    const token = window.localStorage.getItem('token');
+    // console.log(token)
 
+    if (token) {
+      navigate('/')
+    }
+  }, [])
 
+  const schema = Yup.object().shape({
+    name: Yup.string().notOneOf(['inc'], 'Name cannot contain "inc"').required('Name is required'),
+    email: Yup.string().email('Invalid email').required('Email is required'),
+    password: Yup.string()
+      .required('Password is required')
+      .min(8, 'Password must be at least 8 characters')
+      .matches(
+        /^(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-zA-Z])[a-zA-Z0-9!@#$%^&*]+$/,
+        'Password must contain at least one number, one special character, and one letter'
+      ),
+    confirmPassword: Yup.string()
+      .oneOf([Yup.ref('password'), null], 'Passwords must match')
+      .required('Confirm Password is required'),
+  });
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log('Form Submitted');
+    try {
+      await schema.validate({ name, email, password, confirmPassword }, { abortEarly: false });
+      console.log('Form :', {name, email, password });
+      const res = await axios.post('http://localhost:6300/api/auth/register', {
+                    name,
+                    email,
+                    password
+                  });
+        console.log(res)
+      navigate('/login');
+      setErrors({});
+    } catch (error) {
+      const validationErrors = {};
+      if (error) {
+        Object.values(error.inner).forEach((err) => {
+          validationErrors[err.path] = err.message;
+        });
+        toast.error('An error occurred');
+      }
+
+      setErrors(validationErrors);
+    }
+  };
+
+  // Function to clear errors on input change
+  const clearErrors = () => {
+    setErrors({});
+  };
 
   return (
-    <div className='flex items-center justify-center h-screen '>
-      <div className='flex flex-row w-[723px] h-[510px] border-[#000000] border-[0.2px] rounded-lg gap-7     shadow-xl items-center justify-center'>
-        <Formik
-          initialValues={{
-            email: '',
-            name: '',    
-            password: '',
-          }}
-          validationSchema={signupValidation}
-          onSubmit={handleSubmit}
-        >
-              {({ errors, touched }) => (
-          <Form className='flex flex-col p-5 gap-3'>
-            <h1 className='text-lg text-[#A088C6] raleway text-[25px] italic text-center font-extrabold'>
-              Bukati.
-            </h1>
-            <div className='flex flex-col pl-3'>
-              <label htmlFor='name' className='raleway text-sm'>Full Name</label>
-              <Field
-                type='text'
-                name='name'
-               className='border-[0.5px] border-[#D9D9D9] pl-2 h-[35px] w-[290px] rounded-md' 
-              />
-             {errors.name && touched.name ? (<div className='w-[250px] raleway text-[13px]'>{errors.name}</div>) : null}
-            </div>
-            
-            <div className='flex flex-col pl-3'>
-              <label htmlFor='email' className='raleway text-sm'>Email Address</label>
-              <Field type='email' name='email' className='border-[0.5px] border-[#D9D9D9] pl-2 h-[35px] w-[290px] rounded-md' />
-           {errors.email && touched.email ? (<div className='w-[250px]  raleway text-[13px]'>{errors.email}</div>) : null}
-            </div>
-             
-             <div className='flex flex-col pl-3'>
-              <label htmlFor='password' className='raleway text-sm'>Password</label>
-              <Field type='password' name='password' className='border-[0.5px] border-[#D9D9D9] pl-2  h-[35px] w-[290px] rounded-md' />
-            {errors.password && touched.password ? (<div className='w-[250px] raleway text-[13px]'>{errors.password}</div>) : null}
-            </div>
-            <button type='submit'  className='bg-[#A088C6] text-white raleway px-10 rounded-lg py-3'>
-              Submit
-            </button>
-            <p className='text-center raleway'>
-              Already have an account?{' '}
-            <Link to='/Login'>  <span className='text-[#1976d2] raleway'>Sign In</span></Link>
-            </p>
-          </Form>)}
-        </Formik>
-        <div className='items-center flex justify-center'>
-          <img
-            src='waffles.jpg'
-            className='w-[350px] h-[510px] rounded-l-lg rounded-r-lg'
-            alt='Signup Image'
+    <div className='w-full h-[100vh] items-center justify-center flex'>
+      <img src='' alt='' />
+      <form className='flex flex-col gap-6' onSubmit={handleSubmit}>
+        <h1 className='text-2xl font-bold'>Sign Up</h1>
+        {errors.name && <div className='text-xs text-red-500'>{errors.name}</div>}
+        <div>
+          <label htmlFor='name'>Name</label>
+          <input
+            type='text'
+            id='name'
+            placeholder='Name'
+            className='w-full px-3 py-2 leading-tight text-gray-700 border rounded-md shadow-sm focus:outline-none focus:shadow-outline'
+            onChange={(e) => {
+              setName(e.target.value);
+              clearErrors(); // Clear errors on input change
+            }}
           />
         </div>
+        {errors.email && <div className='text-xs text-red-500'>{errors.email}</div>}
+        <div>
+          <label htmlFor='email'>Email</label>
+          <input
+            type='text'
+            id='email'
+            placeholder='Email'
+            className='w-full px-3 py-2 leading-tight text-gray-700 border rounded-md shadow-sm focus:outline-none focus:shadow-outline'
+            onChange={(e) => {
+              setEmail(e.target.value);
+              clearErrors(); // Clear errors on input change
+            }}
+          />
+        </div>
+        {errors.password && <div className='text-xs text-red-500'>{errors.password}</div>}
+        <div>
+          <label htmlFor='password'>Password</label>
+          <input
+            type='password'
+            id='password'
+            placeholder='Password'
+            className='w-full px-6 py-2 leading-tight text-gray-700 border rounded-md shadow-sm focus:outline-none focus:shadow-outline'
+            onChange={(e) => {
+              setPassword(e.target.value);
+              clearErrors(); // Clear errors on input change
+            }}
+          />
+        </div>
+        {errors.confirmPassword && <div className='text-xs text-red-500'>{errors.confirmPassword}</div>}
+        <div>
+          <label htmlFor='confirmPassword'>Confirm Password</label>
+          <input
+            type='password'
+            id='confirmPassword'
+            placeholder='Confirm Password'
+            className='w-full px-6 py-2 leading-tight text-gray-700 border rounded-md shadow-sm focus:outline-none focus:shadow-outline'
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+              clearErrors(); // Clear errors on input change
+            }}
+          />
+        </div>
+        <button type='submit' className='bg-yellow-500 hover:bg-yellow-500/90 text-black px-6 py-3 text-sm rounded-md'>
+          Submit
+        </button>
+      </form>
+      <div>
+        <Toaster />
       </div>
     </div>
   );
-}
+};
+
+export default SignUp;

@@ -1,71 +1,104 @@
-import React,{useState} from 'react';
-import { Formik, Form, Field } from 'formik';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
-import { loginValidation } from '../components/loginValidation';
+import React,{useState, useEffect} from 'react'
+import  * as Yup from 'yup'
+import toast,{Toaster } from 'react-hot-toast';
+import axios from 'axios'
+import {useNavigate, Link} from 'react-router-dom'
 
 
-export default function Login() {
-   const [error, setError] = useState(null);
+const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState({});
+  const navigate = useNavigate()
 
+  useEffect( () => {
+    const token = window.localStorage.getItem('token');
+    // console.log(token)
 
-   const handleSubmit = (values) => {
-    axios.post('http://localhost:5300/api/auth/login', values)
-      .then(res => {
-       
-        window.localStorage.setItem('token', res.data.token);
-        console.log(res.data.token);
-       
-        navigation.navigate('/');
-      })
-      .catch(err => {
-       
-        setError('Invalid credentials. Please try again.'); // Set error message
-        console.log(err);
-      });
-  };
+  if (token) {
+    navigate('/')
+  }
+  }, [])
 
+   const schema = Yup.object().shape({
+    email: Yup.string().email('Invalid email').required('Email is required'),
+    password: Yup.string().required('Password is required'),
+  });
 
-  return ( <div className='flex items-center justify-center h-screen'>
-      <div className='flex flex-row w-[723px] h-[510px] border-[#000000] border-[0.2px] rounded-lg gap-7     shadow-xl items-center justify-center'>
-    <Formik initialValues={{email:'', password:''}} validationSchema={loginValidation} onSubmit={handleSubmit}>
-      {({ errors, touched }) => (
-            
-          <Form className='flex flex-col p-5 gap-3'>
-            <h1 className='text-lg text-[#A088C6] raleway text-[25px] italic text-center font-extrabold'>
-              Bukati.
-            </h1>
-            <div className='flex flex-col pl-3'>
-              <label htmlFor='email' className='raleway text-sm'>Email Address</label>
-              <Field type='email' name='email' className='border-[0.5px] border-[#D9D9D9] pl-2 h-[35px] w-[290px] rounded-md' />
-           {errors.email && touched.email ? (<div className='w-[250px] text-[13px] raleway'>{errors.email}</div>) : null}
-            </div>
-             
-             <div className='flex flex-col pl-3'>
-              <label htmlFor='password' className='raleway text-sm'>Password</label>
-              <Field type='password' name='password' className='border-[0.5px] border-[#D9D9D9] pl-2  h-[35px] w-[290px] rounded-md' />
-            {errors.password && touched.password ? (<div className='w-[250px] text-[13px]'>{errors.password}</div>) : null}
-            </div>
-            <button type='submit'  className='bg-[#A088C6] raleway text-white px-10 rounded-lg py-3'>
-              Submit
-            </button>
-            <p className='text-right text-[#1976d2] text-sm raleway'>Forgot Password</p>
-            <p className='text-center raleway'>
-              Dont have an account?{' '}
-            <Link to='/Signup'>  <span className='text-[#1976d2] raleway'>Sign Up</span></Link>
-            </p>
-</Form>
-      )}
+  const handleSubmit = async(e) => {
+    e.preventDefault()
+    console.log('Form Submitted')
+
+     try {
+      await schema.validate({ email, password }, { abortEarly: false });
+
+      const res = await axios.post('http://localhost:6300/api/auth/login', {
+                    email,
+                    password
+                  });
       
-    
-    </Formik>
-     <div className='items-center flex justify-center'>
-          <img
-            src='pizza.jpg'
-            className='w-[350px] h-[510px] rounded-l-lg rounded-r-lg'
-            alt='Signin Image'
-          />
-        </div>
-    </div></div>
+      if (res.data.user) {
+         const data = res.data
+        const token = data.token
+        console.log(token)
+
+        localStorage.setItem('token', `${token}`)
+
+        navigate('/');
+        
+      }
+
+     
+        const errorMessage = `Invalid password`;
+        console.log(errorMessage)
+        toast.error(errorMessage);
+     
+
+      
+      console.log('Form :', { email, password });
+      setErrors({});
+    } catch (error) {
+      const validationErrors = {};
+      
+      if (error.inner) {
+        error.inner.forEach((err) => {
+          validationErrors[err.path] = err.message;
+          toast.error(err.message);
+        });
+    }
+      setErrors(validationErrors);
+
+      console.log(errors)
+    }
+  }
+
+
+  return (
+    <div className='w-full h-[100vh] items-center justify-center flex flex-col'>
+      <form className='flex flex-col gap-6' onSubmit={handleSubmit}>
+                <input
+                    type='text'
+                    placeholder='Email'
+                    className='w-full px-3 py-2 leading-tight text-gray-700 border rounded-md shadow-sm focus:outline-none focus:shadow-outline'
+                    onChange={(e) => setEmail(e.target.value)}
+                />
+                {errors.email && <div className="text-red-500 text-xs">{errors.email}</div>}
+                <input
+                    type='password'
+                    placeholder='Password'
+                    className='w-full px-6 py-2 leading-tight text-gray-700 border rounded-md shadow-sm focus:outline-none focus:shadow-outline'
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+                 {errors.password && <div className="text-red-500"><p> {errors.password} </p></div>}
+                <button type='submit' className='bg-yellow-500 hover:bg-yellow-500/90 text-black px-6 py-3 text-sm rounded-md'>Submit</button>
+                
+            </form>
+            <div className='block text-sm mt-4'>
+              <p>Don't have an account yet<Link href='/register' className='underline text-xs text-blue-500'> SignUp</Link></p>
+            </div>
+            <div><Toaster/></div>
+    </div>
   )
 }
+
+export default Login

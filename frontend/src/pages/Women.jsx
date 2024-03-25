@@ -2,7 +2,7 @@ import React,{useState, useEffect} from 'react'
 import ProductCard from '../components/ProductCard'
 
 
-const ExploreProducts = () => {
+const Women = () => {
   const [loading,setLoading] = useState(false)
   const [products,setProducts] = useState([])
 
@@ -25,7 +25,7 @@ const ExploreProducts = () => {
 
 const getAllProducts = async () => {
   try {
-    const response = await fetch(`http://localhost:6300/api/products`);
+    const response = await fetch(`http://localhost:6300/api/products/women`);
     if (!response.ok) {
       throw new Error('Failed to fetch data');
     }
@@ -40,14 +40,14 @@ const getAllProducts = async () => {
  
   return (
     <>
-    <p className='font-bold text-center mt-6 mb-3 text-2xl'>Explore Products </p>
+    <p className='font-bold text-center mt-6 mb-3 text-xl'>Explore Products </p>
     {
       loading ? <h1>Loading...</h1> : 
       (
         <div className="w-full grid grid-cols-3 px-12 py-6 gap-6 space-y-3  ">
-        {products?.map(product =>(
+        { products ? products.map(product =>(
           <ProductCard product={product} key={product.id} id={product.id} name={product.name} price={product.price} imageUrl={product.imageUrl}/>
-        ))}
+        )) : 'No product found'}
         </div>
       )
     }
@@ -56,4 +56,4 @@ const getAllProducts = async () => {
     
 }
 
-export default ExploreProducts
+export default Women

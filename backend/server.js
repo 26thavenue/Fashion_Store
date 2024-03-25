@@ -8,11 +8,18 @@ dotenv.config()
 
 const app = express()
 
+app.use(
+    cors({
+    origin: ["http://localhost:5173", "http://exp://192.168.0.170:8081"],
+    methods: ["GET", "POST","PUT","DELETE"],
+    credentials: true
+}));
+
+
 app.use(express.json())
 
 app.use(morgan('tiny'))
 
-app.use(cors())
 
 app.use('/api', router)
 
