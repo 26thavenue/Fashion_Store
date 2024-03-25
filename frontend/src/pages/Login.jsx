@@ -74,7 +74,8 @@ const Login = () => {
 
 
   return (
-    <div className='w-full h-[100vh] items-center justify-center flex flex-col'>
+    <div className='w-full h-[100vh] items-center gap-3 justify-center flex flex-col'>
+      <p className='text-3xl font-light'>LOGIN</p>
       <form className='flex flex-col gap-6' onSubmit={handleSubmit}>
                 <input
                     type='text'
