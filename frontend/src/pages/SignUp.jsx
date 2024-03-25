@@ -71,7 +71,7 @@ const SignUp = () => {
 
   return (
     <div className='w-full h-[100vh] items-center justify-center flex'>
-      <img src='' alt='' />
+      <p>Sign Up</p>
       <form className='flex flex-col gap-6' onSubmit={handleSubmit}>
         <h1 className='text-2xl font-bold'>Sign Up</h1>
         {errors.name && <div className='text-xs text-red-500'>{errors.name}</div>}
