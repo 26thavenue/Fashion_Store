@@ -16,14 +16,15 @@ const ChangePassword = () => {
         },
     };
 
-const passwordSchema = Yup.object().shape({
-  password: Yup.string()
-      .min(8, 'Password must be at least 8 characters long')
-     .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
-      .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
+ const schema = Yup.object().shape({
+    password: Yup.string()
       .required('Password is required')
-   
-});
+      .min(8, 'Password must be at least 8 characters')
+      .matches(
+        /^(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[a-zA-Z])[a-zA-Z0-9!@#$%^&*]+$/,
+        'Password must contain at least one number, one special character, and one letter'
+      ),
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,16 +33,23 @@ const passwordSchema = Yup.object().shape({
 
 
     try {
-      console.log(password);
-      await passwordSchema.validate(password, { abortEarly: false });
+      console.log(password)
+      await schema.validate({password}, { abortEarly: false });
       console.log(password)
 
       // console.log(formData)
-      // await axios.put('http://localhost:6300/api/user',config, {password});
+      const res = await axios.put('http://localhost:6300/api/user', {password},config);
+      console.log(res);
 
-      setPassword('')
-      setErrors({});
-      toast.success('Form submitted successfully!');
+      if(!res.data.message === 'New password must be different from the old one'){
+        
+        toast.success('Form submitted successfully!');
+        setPassword('')
+        setErrors({});
+      }
+      setErrors({message: 'New password must be different from the old one'});
+      
+      toast.error('New password must be different from the old one');
     } catch (error) {
       console.log(error)
       if (error.name === 'ValidationError') {
