@@ -5,19 +5,17 @@ import toast,{Toaster} from 'react-hot-toast'
 
 
 const FeedbackForm = () => {
-    const [name, setName] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('')
   const [errors, setErrors] = useState({});
 
   
   const validationSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
     email: Yup.string().email('Invalid email').required('Email is required'),
-    email: Yup.string().required('Name is required'),
     message: Yup.string().required('Message is required'),
-  });
+  }); 
 
   // Form submission handler
   const handleSubmit = async (e) => {
@@ -36,7 +34,6 @@ const FeedbackForm = () => {
       // Clear form data on successful submission
       setName('');
       setEmail('');
-      setPhoneNumber('')
       setMessage('');
       setErrors({});
       toast.success('Form submitted successfully!');
@@ -68,24 +65,21 @@ const FeedbackForm = () => {
                     onChange={(e) => setName(e.target.value)}
                     className= 'w-full px-3 py-2 leading-tight text-gray-700 border rounded-md shadow-sm focus:outline-none focus:shadow-outline'
                 />
+                  {errors.name && <p className="text-red-500 text-xs">{errors.name}</p>}
                 <input
                     type='text'
                     placeholder='Email'
                     onChange={(e) => setEmail(e.target.value)}
                     className='w-full px-3 py-2 leading-tight text-gray-700 border rounded-md shadow-sm focus:outline-none focus:shadow-outline'
                 />
-                <input
-                    type='text'
-                    placeholder='Phone Number'
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    className='bg-whitew-full px-6 py-2 leading-tight text-gray-700 border rounded-md shadow-sm focus:outline-none focus:shadow-outline'
-                />
+                  {errors.email && <p className="text-red-500 text-xs">{errors.email}</p>}
                 <textarea
                     type='text'
                     placeholder='Enter your Message Here'
                     onChange={(e) => setMessage(e.target.value)}
                      className="w-full px-6 py-2 leading-tight text-gray-700 border rounded-md shadow-sm focus:outline-none focus:shadow-outline"
                 />
+                 {errors.message && <p className="text-red-500 text-xs">{errors.message}</p>}
                 <button type="submit" className='bg-yellow-500 hover:bg-yellow-500/90 text-black px-6 py-3 text-sm rounded-md'>Submit</button>
             </form>
             <Toaster/>

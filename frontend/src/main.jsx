@@ -15,6 +15,7 @@ import Products from './pages/Products.jsx';
 import Men from './pages/Men.jsx'
 import Women from './pages/Women.jsx'
 import Received from './pages/Received.jsx'
+import ChangePassword from './pages/ChangePassword.jsx'
 import './index.css'
 
 
@@ -32,6 +33,11 @@ const router = createBrowserRouter([
   {
     path: "/order",
     element: <Order />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/change-password",
+    element: <ChangePassword />,
     errorElement: <ErrorPage />,
   },
   {

@@ -8,8 +8,17 @@ export const useCartStore = create((
     (set, get) => ({
       cart: [],
       count: () => {
+        try {
+            const {cart} = get()
+            return cart ?  cart?.reduce((totalCount, currentItem) => totalCount + currentItem.quantity, 0) : 0;   
+        } catch (error) {
+          return 0
+        }
+        
+      },
+      totalPrice : () => {
         const {cart} = get()
-        return  cart.reduce((totalCount, currentItem) => totalCount + currentItem.quantity, 0);
+        return cart.reduce((totalPrice, currentItem) => totalPrice + (currentItem.quantity * currentItem.product.price), 0);
       },
       add: async (product) => {
         try {
@@ -24,13 +33,26 @@ export const useCartStore = create((
           toast.error('You need to be logged in to save items to  cart');
         }
       },
-      increaseQuantity: async (quantity, cartId) => {
+      increaseQuantity: async ( itemQty,cartId) => {
         try {
           const { cart } = get();
           const token = localStorage.getItem('token');
-          const updatedCart = await increaseQuantity(product,token,quantity, cart );
+          const updatedCart = await increaseQuantity(cart,token,itemQty,cartId);
           set({ cart: updatedCart });
           toast.success('Product quantity increased');
+        } catch (error) {
+          console.log(error);
+          toast.error('Error increasing product quantity');
+        }
+      },
+      decreaseQuantity: async (itemQty,cartId) => {
+        try {
+          const { cart } = get();
+          const token = localStorage.getItem('token');
+          const updatedCart = await decreaseQuantity(cart,token,itemQty,cartId);
+          set({ cart: updatedCart });;
+          set({ cart: updatedCart });
+          toast.success('Product quantity decreased');
         } catch (error) {
           console.log(error);
           toast.error('Error increasing product quantity');
@@ -121,17 +143,77 @@ async function updateCart(product,token, cart ) {
     
 }
 
-async function increaseQuantity(product,token,quantity, cart ){
-  const newQuantity = quantity + 1
-  const cartItem = { ...product, newQuantity };
-        return [...cart, cartItem];
+async function decreaseQuantity(cart,token,itemQty,cartId ){
+  try {
+    if (token) {
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        };
+
+        const isThere = cart.find(item => item.id === cartId);
+        if(!isThere) {
+          throw new Error('No such cart item')
+        }
+
+        let quantity = itemQty - 1;
+        console.log(quantity);
+        
+        const res = await axios.put(
+            `http://localhost:6300/api/cart/${cartId}`,
+            { quantity },
+            config
+        );
+        console.log(res)
+        res.data;
+
+        const updatedCart = cart.map(item =>
+        item.id === cartId ? { ...item, quantity } : item
+         );
+
+        return updatedCart;
+    }
+    
+  } catch (error) {
+    console.error("Error on  cart:", error);
+        // Handle error appropriately
+        return cart;
+  }
 }
 
-async function decreaseQuantity(product,token,quantity, cart ){
-  const newQuantity = quantity - 1
- 
-  const cartItem = { ...product, newQuantity };
-        return [...cart, cartItem];
+
+async function increaseQuantity(cart,token,itemQty,cartId ){
+  try {
+    if (token) {
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        };
+        let quantity = itemQty + 1;
+        console.log(quantity);
+        
+        const res = await axios.put(
+            `http://localhost:6300/api/cart/${cartId}`,
+            { quantity },
+            config
+        );
+        console.log(res)
+        res.data;
+
+        const updatedCart = cart.map(item =>
+        item.id === cartId ? { ...item, quantity } : item
+         );
+
+        return updatedCart;
+    }
+    
+  } catch (error) {
+    console.error("Error on  cart:", error);
+        // Handle error appropriately
+        return cart;
+  }
 }
 
 async function removeCart(cartId, token) {

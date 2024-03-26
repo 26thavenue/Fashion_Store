@@ -4,8 +4,10 @@ import { useCartStore } from '../store/cart';
 import { useNavigate } from 'react-router-dom';
 
 const CartPage = () => {
-  const { cart, count } = useCartStore();
+  const { cart, totalPrice } = useCartStore();
   const navigate = useNavigate();
+
+  
 
   const handlePlaceOrder = () => {
     navigate('/order')
@@ -17,18 +19,28 @@ const CartPage = () => {
       <h1 className='text-2xl font-bold mb-4'>Your Cart</h1>
       {cart.length > 0 ? (
         <>
-          <ul className='divide-y divide-gray-200'>
+          <div className='flex font-bold justify-between'>
+            <p className=''>Product </p>
+            <p>Quantity</p>
+            <p>Price</p>
+          </div>
+         
+          <div className='  justify-between divide-y divide-gray-200'>
+
             {cart.map((item, index) => (
-              <li key={index} className='py-4 flex items-center justify-between'>
+              <p key={index} className='py-4 flex items-center justify-between'>
                 <div>
-                
-                  <h2 className='text-lg font-semibold'>{item.name}</h2>
-                  <p>Quantity: {item.quantity}</p>
+                  <img src={item.product.imageUrl} alt={item.product.name} className='w-16 h-16 object-cover' />  
+                   <h2 className='text-sm gap-3 font-semibold'>{item.product.name}</h2>
                 </div>
-                <p className='text-lg font-semibold'>${item.price * item.quantity}</p>
-              </li>
+               
+               
+                <p className='text-xs'>{item.quantity}</p>
+               
+                <p className='text-lg font-semibold'>${item.product.price * item.quantity}</p>
+              </p>
             ))}
-          </ul>
+          </div>
           <div className='flex justify-end mt-4'>
             <button
               className='bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded'
@@ -41,6 +53,7 @@ const CartPage = () => {
       ) : (
         <p>Your cart is empty.</p>
       )}
+      <p className='font-bold text-xl'>Total Price : ${totalPrice()}</p>
       <div className='mt-8 hover:underline transition'>
         <Link to='/'>Continue Shopping</Link>
       </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ShoppingCart, User, CircleX } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCartStore } from '../store/cart';
+import QuantityButton from './QuantityButton';
 
 const Navbar = () => {
 
@@ -22,8 +23,7 @@ const Navbar = () => {
   };
 
   const toggleUserOpen = () => {
-    setUserOpen(!open);
-    
+    setUserOpen(!userOpen);  
   };
 
   const Close = () => {
@@ -57,19 +57,20 @@ const Navbar = () => {
           
          
           {open && (
-            <div className='absolute flex flex-col gap-3 justify-between top-full right-0 bg-white shadow-md rounded-lg p-4 w-[400px] z-10'>
+            <div className='absolute flex flex-col gap-3 justify-between top-full right-0 bg-white shadow-md rounded-lg p-4 w-[500px] z-10'>
               <CircleX onClick={Close} className='justify-self-end w-4' />
-              <div className='h-[50vh] bg-red-100 p-6 overflow-y-auto'>
-                {cart?.length > 0 ? (
-                  <div>
-                    {cart?.map((item, index) => (
-                      <div key={item.product.id} className='flex gap-8 items-center justify-center mb-1'>
-                        <img src={item.product.imageUrl} alt='product-image' className='h-[100px] w-[100px]' />
+              <div className='h-[50vh]  p-6 overflow-y-auto'>
+                {cart && cart?.length > 0 ? (
+                  <div className='flex flex-col gap-3  items-center justify-center'>
+                    {cart.map((item, index) => (
+                      <div key={item.product.id} className='flex gap-8 items-center justify-center mb-3'>
+                        <img src={item.product.imageUrl} alt='product-image' className='h-[100px] w-[100px] rounded-md' />
                         <div className='flex flex-col items-center justify-center gap-1'>
                           <p className='font-bold'>{item.product.name}</p>
-                          <p className='text-xs'>Quantity: {item.product.quantity}</p>
+                          <p className='text-xs'>Quantity: {item.quantity}</p>
                           <p className='text-xs'>Price: {item.product.price}</p>
                         </div>
+                        <QuantityButton item={item}  />
                       </div>
                     ))}
                   </div>
@@ -98,10 +99,10 @@ const Navbar = () => {
 
                 {userOpen && (
                     <div className='absolute flex flex-col gap-3 justify-between top-full right-0 bg-white shadow-md rounded-lg p-4 w-[200px] z-10'>
-                      
-                      <p className='hover:bg-slate-100 cursor-pointer p-2 rounded-md transition duration-300 ease-in-out'>Change Password</p>
 
-                    
+                      <Link to='/change-password'>
+                        <button className='hover:bg-slate-100 cursor-pointer p-2 rounded-md transition duration-300 ease-in-out'>Change Password</button>
+                      </Link>                   
                     </div>
                   )}
             </div>

@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
 import { useEffect,useState } from 'react';
 import toast,{Toaster} from 'react-hot-toast'
 import axios from 'axios'
-
+import { useCartStore } from '../store/cart';
 
 
 const Order = () => {
   const navigate = useNavigate(); 
   const [address, setAddress] = useState('');
+
+   const { cart, totalPrice } = useCartStore();
 
   const handleSubmit = async(e) => {
       e.preventDefault();
@@ -57,6 +59,16 @@ const Order = () => {
   return (
     <div className='container mx-auto py-8'>
       <h1 className='text-2xl text-center font-bold mb-4'>Place Order</h1>
+      <div>
+        {/* <p className='my-10 font-bold text-center'>Products Ordered </p> */}
+        <div className='bg-red-100 w-full shadow-md flex flex-col justify-center items-center mx-auto '>
+
+          { cart && cart.length> 0 ? null : <p> Your Cart is Empty</p>} 
+        </div>
+         
+
+            <p className='text-center text-xl font-bold my-10'>Total : ${totalPrice()}</p>
+      </div>
       <form onSubmit={handleSubmit} className='max-w-md mx-auto'>
       <div className='mb-4'>
         <label htmlFor='address' className='block text-sm font-medium text-gray-700'>
