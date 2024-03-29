@@ -12,7 +12,7 @@ const ExploreProducts = () => {
       setLoading(true);
       const data = await getAllProducts();
       setProducts(data);
-      console.log({'data': data});
+      // console.log({'data': data});
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {

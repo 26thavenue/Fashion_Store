@@ -20,6 +20,12 @@ export const useCartStore = create((
         const {cart} = get()
         return cart.reduce((totalPrice, currentItem) => totalPrice + (currentItem.quantity * currentItem.product.price), 0);
       },
+      clear : () => {
+        const {cart} = get()
+        const updatedCart = clearCart(cart)
+        set({ cart: updatedCart, isLoading: false });
+        
+      },
       add: async (product) => {
         try {
           const { cart } = get();
@@ -97,51 +103,101 @@ export const useCartStore = create((
 )
 );
 
-async function updateCart(product,token, cart ) {
-    
-    try {
-        if (token) {
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            };
-            // console.log(token)
-            const quantity = 1;
-            const productId = product.id;
-            const res = await axios.post(
-                `http://localhost:6300/api/cart`,
-                { productId, quantity },
-                config
-            );
-            console.log(res)
-            res.data;
-        }
-    } catch (error) {
-        console.error("Error on  cart:", error);
-        // Handle error appropriately
-        return cart;
-    }
-    
-    const productOnCart = cart?.find(item => item.id === product.id);
+// async function updateCart(product,token, cart ) {
+//     console.log({cart,product});
+//     const productOnCart = cart.find(item => item.product.id === product.id);
+//     console.log(productOnCart);
+//     try {
+//         if (token) {
+//             const config = {
+//                 headers: {
+//                     Authorization: `Bearer ${token}`,
+//                 },
+//             };
+//             // console.log(token)
+//             const quantity = 1;
+//             const productId = product.id;
+//             const res = await axios.post(
+//                 `http://localhost:6300/api/cart`,
+//                 { productId, quantity },
+//                 config
+//             );
+//             console.log(res)
+
+        
 
 
-    if (!productOnCart) {
-        const cartItem = { ...product, quantity: 1 };
-        return [...cart, cartItem];
-    } else {
-        return cart.map(item => {
-            if (item.id === product.id) {
-                return { ...item, quantity: item.quantity + 1 };
-            }
-            return item;
-        });
-    }
+//         if (!productOnCart) {
+//             const cartItem = { ...product, quantity: 1 };
+//             return [...cart, cartItem];
+//         } else {
+//             return cart.map(item => {
+//                 if (item.id === product.id) {
+//                     return { ...item, quantity: item.quantity + 1 };
+//                 }
+//                 return item;
+//             });
+//         }
+//         }
+//     } catch (error) {
+//         console.error("Error on  cart:", error);
+//         // Handle error appropriately
+//         return cart;
+//     }
+    
+   
    
     
 
     
+// }
+
+async function updateCart(product, token, cart) {
+    console.log({ cart, product });
+    
+    try {
+        if (!token) {
+            throw new Error("Token is missing");
+        }
+        
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        };
+        
+        const quantity = 1;
+        const productId = product.id;
+        
+        // Make a POST request to add the product to the cart
+        const res = await axios.post(
+            `http://localhost:6300/api/cart`,
+            { productId, quantity },
+            config
+        );
+        
+        console.log(res);
+
+        // Check if the product is already in the cart
+        const productOnCartIndex = cart.findIndex(item => item.product.id === product.id);
+        
+        if (productOnCartIndex === -1) {
+            // If the product is not in the cart, add it with a quantity of 1
+            const cartItem = { product, quantity: 1 };
+            return [...cart, cartItem];
+        } else {
+            // If the product is already in the cart, update its quantity
+            const updatedCart = [...cart];
+            updatedCart[productOnCartIndex].quantity += 1;
+            return updatedCart;
+        }
+    } catch (error) {
+        console.error("Error updating cart:", error);
+        // Handle error appropriately
+        return cart;
+    }
 }
+
 
 async function decreaseQuantity(cart,token,itemQty,cartId ){
   try {
@@ -216,21 +272,9 @@ async function increaseQuantity(cart,token,itemQty,cartId ){
   }
 }
 
-async function removeCart(cartId, token) {
+async function clearCart(cart) {
+ return [];
 
-
-  // const config = {
-  //   headers: {
-  //     Authorization: token,
-  //   },
-  // };
-
-  // // Make your Axios request here, for example:
-  // const res = await axios.delete(
-  //   `http://localhost:6300/api/cart/${cartId}`,
-  //   config
-  // );
-  // return res.data;
 }
 
 
@@ -247,7 +291,7 @@ async function getCart(token) {
                 `http://localhost:6300/api/cart`,
                 config
             );
-            console.log(res)
+            
             return res.data;
    }
   } catch (error) {

@@ -16,6 +16,8 @@ import Men from './pages/Men.jsx'
 import Women from './pages/Women.jsx'
 import Received from './pages/Received.jsx'
 import ChangePassword from './pages/ChangePassword.jsx'
+import Navbar from './components/Navbar.jsx'
+import Footer from './components/Footer'
 import './index.css'
 
 
@@ -79,7 +81,9 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
+   
        <RouterProvider router={router} />
+    
     
   </React.StrictMode>,
 )

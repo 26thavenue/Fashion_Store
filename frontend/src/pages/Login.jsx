@@ -27,7 +27,7 @@ const Login = () => {
 
   const handleSubmit = async(e) => {
     e.preventDefault()
-    console.log('Form Submitted')
+    // console.log('Form Submitted')
 
      try {
       await schema.validate({ email, password }, { abortEarly: false });
@@ -36,6 +36,8 @@ const Login = () => {
                     email,
                     password
                   });
+
+      console.log(res);
       
       if (res.data.user) {
          const data = res.data
@@ -92,10 +94,12 @@ const Login = () => {
                 />
                  {errors.password && <div className="text-red-500"><p> {errors.password} </p></div>}
                 <button type='submit' className='bg-yellow-500 hover:bg-yellow-500/90 text-black px-6 py-3 text-sm rounded-md'>Submit</button>
-                
+
+
+                   <p className='mt-4'>Don't have an account yet,<Link to='/register' className='text-blue-500 hover:underline'>signup</Link></p>
             </form>
-            <div className='block text-sm mt-4'>
-              <p>Don't have an account yet<Link href='/register' className='underline text-xs text-blue-500'> SignUp</Link></p>
+            <div className=' mt-4'>
+           
             </div>
             <div><Toaster/></div>
     </div>

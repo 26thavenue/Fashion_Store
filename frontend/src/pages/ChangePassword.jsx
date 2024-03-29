@@ -6,6 +6,7 @@ import * as Yup from 'yup'
 
 const ChangePassword = () => {
   const [password, setPassword] = useState('')
+  const [oldPassword, setOldPassword] = useState('')
   const [errors, setErrors] = useState({});
 
   const token = localStorage.getItem('token');
@@ -38,18 +39,19 @@ const ChangePassword = () => {
       console.log(password)
 
       // console.log(formData)
-      const res = await axios.put('http://localhost:6300/api/user', {password},config);
+      const res = await axios.put('http://localhost:6300/api/user', {oldPassword,password},config);
       console.log(res);
 
-      if(!res.data.message === 'New password must be different from the old one'){
+      if(!res.data.message){
         
         toast.success('Form submitted successfully!');
+        setOldPassword('')
         setPassword('')
         setErrors({});
+      }else{
+        toast.error(res.data.message);
+        setErrors({message: res.data.message});
       }
-      setErrors({message: 'New password must be different from the old one'});
-      
-      toast.error('New password must be different from the old one');
     } catch (error) {
       console.log(error)
       if (error.name === 'ValidationError') {
@@ -72,9 +74,21 @@ const ChangePassword = () => {
 
   return (
    <div className='container mx-auto py-8'>
-      <h1 className='text-2xl text-center font-bold my-12'>Change your pssword </h1>
+      <h1 className='text-2xl text-center font-bold my-12'>Change your password </h1>
       <form onSubmit={handleSubmit} className='max-w-md mx-auto'>
       <div className='mb-4'>
+        <label htmlFor='password' className='block text-sm font-medium text-gray-700'>
+         Enter your former password
+        </label>
+        <input
+          type='password'
+          id='password'
+          value={oldPassword}
+          onChange={(e) => setOldPassword(e.target.value)}
+          className='mt-1 p-2 mb-5  block w-full border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500'
+          placeholder='Enter your new password'
+          required
+        />
         <label htmlFor='password' className='block text-sm font-medium text-gray-700'>
           Set New Password
         </label>

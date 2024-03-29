@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState ,useEffect} from 'react';
 import * as Yup from 'yup';
 import toast, { Toaster } from 'react-hot-toast';
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const SignUp = () => {
   const [name, setName] = useState('');
@@ -49,7 +50,17 @@ const SignUp = () => {
                     password
                   });
         console.log(res)
-      navigate('/login');
+      
+      
+      if(res.data.message){
+        toast.error(res.data.message)
+        setErrors({message: res.data.message}); 
+      }
+      if(!res.data.message){
+        toast.success('Form submitted successfully!')
+
+          navigate('/login');
+      }
       setErrors({});
     } catch (error) {
       const validationErrors = {};
@@ -71,7 +82,7 @@ const SignUp = () => {
 
   return (
     <div className='w-full h-[100vh] items-center justify-center flex'>
-      <p>Sign Up</p>
+     
       <form className='flex flex-col gap-6' onSubmit={handleSubmit}>
         <h1 className='text-2xl font-bold'>Sign Up</h1>
         {errors.name && <div className='text-xs text-red-500'>{errors.name}</div>}
@@ -133,6 +144,7 @@ const SignUp = () => {
         <button type='submit' className='bg-yellow-500 hover:bg-yellow-500/90 text-black px-6 py-3 text-sm rounded-md'>
           Submit
         </button>
+        <p>Already created an account <Link to='/login' className='text-blue-500 hover:underline '> login</Link></p>
       </form>
       <div>
         <Toaster />

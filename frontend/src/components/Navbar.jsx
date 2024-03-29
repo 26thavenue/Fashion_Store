@@ -8,7 +8,7 @@ const Navbar = () => {
 
   const [open, setOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
-  const { cart, count,get } = useCartStore();
+  const { cart, count,get, clear } = useCartStore();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -32,7 +32,8 @@ const Navbar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('token'); // Remove token from localStorage
-    setIsLoggedIn(false); // Update isLoggedIn state
+    setIsLoggedIn(false); 
+    clear()
   };
 
   return (
@@ -60,15 +61,15 @@ const Navbar = () => {
             <div className='absolute flex flex-col gap-3 justify-between top-full right-0 bg-white shadow-md rounded-lg p-4 w-[500px] z-10'>
               <CircleX onClick={Close} className='justify-self-end w-4' />
               <div className='h-[50vh]  p-6 overflow-y-auto'>
-                {cart && cart?.length > 0 ? (
+                {cart && cart.length > 0 ? (
                   <div className='flex flex-col gap-3  items-center justify-center'>
                     {cart.map((item, index) => (
-                      <div key={item.product.id} className='flex gap-8 items-center justify-center mb-3'>
-                        <img src={item.product.imageUrl} alt='product-image' className='h-[100px] w-[100px] rounded-md' />
+                      <div key={index} className='flex gap-8 items-center justify-center mb-3'>
+                        <img src={item?.product?.imageUrl} alt='product-image' className='h-[100px] w-[100px] rounded-md' />
                         <div className='flex flex-col items-center justify-center gap-1'>
-                          <p className='font-bold'>{item.product.name}</p>
-                          <p className='text-xs'>Quantity: {item.quantity}</p>
-                          <p className='text-xs'>Price: {item.product.price}</p>
+                          <p className='font-bold'>{item?.product?.name}</p>
+                          <p className='text-xs'>Quantity: {item?.quantity}</p>
+                          <p className='text-xs'>Price: {item?.product?.price}</p>
                         </div>
                         <QuantityButton item={item}  />
                       </div>
