@@ -10,7 +10,7 @@ export const useCartStore = create((
       count: () => {
         try {
             const {cart} = get()
-            return cart ?  cart?.reduce((totalCount, currentItem) => totalCount + currentItem.quantity, 0) : 0;   
+            return  cart.reduce((totalCount, currentItem) => totalCount + currentItem.quantity, 0)    
         } catch (error) {
           return 0
         }
@@ -18,7 +18,7 @@ export const useCartStore = create((
       },
       totalPrice : () => {
         const {cart} = get()
-        return cart.reduce((totalPrice, currentItem) => totalPrice + (currentItem.quantity * currentItem.product.price), 0);
+        return cart ? cart.reduce((totalPrice, currentItem) => totalPrice + (currentItem.quantity * currentItem.product.price), 0) : 0;
       },
       clear : () => {
         const {cart} = get()
@@ -79,14 +79,18 @@ export const useCartStore = create((
         try {
           const { cart } = get();
           const token = localStorage.getItem('token');
-          if (!token) {
-            // If no token, just remove from cart locally
-            const updatedCart = removeFromLocalCart(cartId, cart);
-            set({ cart: updatedCart });
-            toast.success('Product removed from cart');
-            return;
-          }
-          const updatedCart = await removeCart(cartId, token);
+          const updatedCart =  await removeCart(cartId, cart,token);
+          set({ cart: updatedCart });
+          toast.success('Product removed from cart');
+        } catch (error) {
+          console.log(error);
+          toast.error('Error removing product from cart');
+        }
+      },
+      removeAll: async () => {
+        try {
+          const token = localStorage.getItem('token');
+          const updatedCart =  await removeAll(token);
           set({ cart: updatedCart });
           toast.success('Product removed from cart');
         } catch (error) {
@@ -103,54 +107,56 @@ export const useCartStore = create((
 )
 );
 
-// async function updateCart(product,token, cart ) {
-//     console.log({cart,product});
-//     const productOnCart = cart.find(item => item.product.id === product.id);
-//     console.log(productOnCart);
-//     try {
-//         if (token) {
-//             const config = {
-//                 headers: {
-//                     Authorization: `Bearer ${token}`,
-//                 },
-//             };
-//             // console.log(token)
-//             const quantity = 1;
-//             const productId = product.id;
-//             const res = await axios.post(
-//                 `http://localhost:6300/api/cart`,
-//                 { productId, quantity },
-//                 config
-//             );
-//             console.log(res)
+async function removeAll(token){
+  try {
+    if (token) {
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        };
+        const res = await axios.delete(
+            `http://localhost:6300/api/cart`,
+            config
+        );
+        console.log(res)
+        res.data;
+        return []
+    }
+    return []
+  } catch (error) {
+    console.error("Error on  cart:", error);
+        // Handle error appropriately
+    return [];
+  }
 
-        
+}
 
-
-//         if (!productOnCart) {
-//             const cartItem = { ...product, quantity: 1 };
-//             return [...cart, cartItem];
-//         } else {
-//             return cart.map(item => {
-//                 if (item.id === product.id) {
-//                     return { ...item, quantity: item.quantity + 1 };
-//                 }
-//                 return item;
-//             });
-//         }
-//         }
-//     } catch (error) {
-//         console.error("Error on  cart:", error);
-//         // Handle error appropriately
-//         return cart;
-//     }
+async function removeCart(cartId, cart, token) {
+  try {
+    if (token) {
+        const config = {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        };
+        const res = await axios.delete(
+            `http://localhost:6300/api/cart/${cartId}`,
+            config
+        );
+        console.log(res)
+        res.data;
+        const updatedCart = cart.filter(item => item.id !== cartId);
+        return updatedCart;
+    }
+    return cart
     
-   
-   
-    
-
-    
-// }
+  } catch (error) {
+    console.error("Error on  cart:", error);
+        // Handle error appropriately
+    return cart;
+  }
+}
 
 async function updateCart(product, token, cart) {
     console.log({ cart, product });

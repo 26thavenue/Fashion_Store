@@ -8,7 +8,7 @@ const Navbar = () => {
 
   const [open, setOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
-  const { cart, count,get, clear } = useCartStore();
+  const { cart, count,get, clear,remove ,removeAll} = useCartStore();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -71,6 +71,9 @@ const Navbar = () => {
                           <p className='font-bold'>{item?.product?.name}</p>
                           <p className='text-xs'>Quantity: {item?.quantity}</p>
                           <p className='text-xs'>Price: {item?.product?.price}</p>
+                          <p
+                          onClick={() => remove(item.id)} 
+                          className='underline cursor-pointer hover:no-underline'>Remove</p>
                         </div>
                         <QuantityButton item={item}  />
                       </div>
@@ -81,7 +84,11 @@ const Navbar = () => {
                 )}
               </div>
 
-              <div className="flex flex-col mt-2 mb-3 ">
+              <div className="flex flex-col mt-2 mb-3 gap-2">
+                {/* <p className='text-sm'>{totalPrice()}</p> */}
+                <p
+                  onClick={() => removeAll()} 
+                className='underline cursor-pointer hover:no-underline'>Clear Cart</p>
                 <Link to='/cart'>
                   <button className='bg-black w-full text-white px-6 text-sm py-3 rounded-md mb-1'>View Cart</button>
                 </Link>

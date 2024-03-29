@@ -69,6 +69,19 @@ const prisma = new PrismaClient();
     return res.json({message:'Item deleted'}).status(200)
 }
 
+ const deleteAllUserCart = async(req, res) => {
+    const user = req.user
+    if(!user){
+        return res.json({message:'User not found'}).status(404)
+    }
+    await prisma.cartItems.deleteMany({
+        where: {
+            userId: user.id
+        }
+    })
+    return res.json({message:'Item deleted'}).status(200)
+}
+
 const changeQuantity = async(req, res) => {
     const user = req.user
     const {quantity} = req.body
@@ -153,5 +166,6 @@ module.exports = {
   deleteItemFromCart,
   changeQuantity,
   getUserCart,
-  getACartItem
+  getACartItem,
+  deleteAllUserCart
 };
