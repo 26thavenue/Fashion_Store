@@ -2,7 +2,7 @@ import React,{useState, useEffect} from 'react'
 import toast,{Toaster} from 'react-hot-toast'
 import axios from 'axios'
 import * as Yup from 'yup'
-
+import Navbar from '../components/Navbar'
 
 const ChangePassword = () => {
   const [password, setPassword] = useState('')
@@ -74,7 +74,9 @@ const ChangePassword = () => {
 
   return (
    <div className='container mx-auto py-8'>
-      <h1 className='text-2xl text-center font-bold my-12'>Change your password </h1>
+      <Navbar/>
+      <div className='flex-grow'>
+         <h1 className='text-2xl text-center font-bold my-12'>Change your password </h1>
       <form onSubmit={handleSubmit} className='max-w-md mx-auto'>
       <div className='mb-4'>
         <label htmlFor='password' className='block text-sm font-medium text-gray-700'>
@@ -112,6 +114,8 @@ const ChangePassword = () => {
       </div>
     </form>
       <Toaster/>
+      </div>
+     
     </div>
   )
 }

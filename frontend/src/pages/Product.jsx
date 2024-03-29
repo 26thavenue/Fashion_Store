@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import {useCartStore} from '../store/cart'
-import QuantityButton from '../components/QuantityButton';
+import Navbar from '../components/Navbar'
 const Product = () => {
   const [loading, setLoading] = useState(true); // Set loading state to true initially
   const [product, setProduct] = useState(null); // Initialize product state to null
@@ -32,7 +32,9 @@ const Product = () => {
 
   return (
     <div className='w-[100vw] h-[100vh]'>
-      {loading ? (
+      <Navbar/>
+      <>
+          {loading ? (
         <p>Loading...</p>
       ) : product ? ( // Check if product is not null
         <div className="flex gap-12 items-center w-full h-full mx-auto  px-12 py-6 ">
@@ -41,7 +43,6 @@ const Product = () => {
               <h1 className='text-3xl font-bold'>{product.name}</h1>
               <p className='text-2xl'>${product.price}</p>
               <p className='text-xl'>{product.description}</p>
-              <QuantityButton />
               
               <button className=' hover:bg-black/90 py-3 px-6 text-sm bg-black text-white '> Add to Cart</button>
           </div>
@@ -52,6 +53,10 @@ const Product = () => {
       ) : (
         <p>No product found</p>
       )}
+
+      </>
+
+    
     </div>
   );
 };
