@@ -27,13 +27,13 @@ const getOneUser = async(req, res) => {
 
  const updateUser = async(req, res) =>{
     const userId = req.user?.id;
-    const { password} = req.body;
+    const { oldPassword,password} = req.body;
 
     if(!userId){
         return res.json({message:'User not found'}).status(404)
     }
-    if( !password){
-        return res.json({message:'Password is required'}).status(404)
+    if( !password || !oldPassword){
+        return res.json({message:'Old Password is required'}).status(404)
     }
 
     
@@ -46,12 +46,17 @@ const getOneUser = async(req, res) => {
         return res.json({message:'User not found'}).status(404)
     }
 
-    const oldPassword = user.hashedPassword
+    
    
 
     try {
+        const isPasswordValid = compareSync(oldPassword, user.hashedPassword);
 
-         if (compareSync(password, oldPassword)) {
+        if(!isPasswordValid){
+            return res.json({message:'Old password is incorrect'}).status(400)
+        }
+
+         if (compareSync(password, user.hashedPassword)) {
             return res.json({ message: 'New password must be different from the old one' }).status(400);
         }
         

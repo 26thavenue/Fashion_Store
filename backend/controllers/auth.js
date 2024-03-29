@@ -1,5 +1,5 @@
 const {PrismaClient} = require('@prisma/client')
-const {hashSync, compareSync} = require('bcrypt')
+const {hashSync, compareSync, compare} = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const dotenv = require('dotenv')
 
@@ -26,12 +26,13 @@ const login = async(req, res) => {
         })
 
         if(!user){
-            res.status(400)
-            return res.json({message: 'Invalid password'})
+            
+            return res.json({message: 'Invalid password'}).status(400)
         }
+        
+        const isPasswordMatch = await compare(password,user.hashedPassword)
 
-
-        if(!compareSync(password,user.hashedPassword)){
+        if(!isPasswordMatch){
             
             return res.json({message: 'Invalid password'}).status(403)
             // throw new Error('Invalid password')
@@ -54,8 +55,8 @@ const signUp = async(req, res) => {
     const {email,password,name} = req.body
 
     if(!email || !password || !name){
-        res.status(400)
-        return res.json({message: 'Please fill all the required fields'})
+        
+        return res.json({message: 'Please fill all the required fields'}).status(400)
     }
 
     const checkForDuplicateEmail = await prisma.user.findFirst({
@@ -65,7 +66,7 @@ const signUp = async(req, res) => {
     })
     
     if(checkForDuplicateEmail){
-        return res.json({message: 'Email already exists'}).status(500)
+        return res.json({message: 'Email already exists'}).status(400)
     }
 
     const user = await prisma.user.create({
